@@ -16,11 +16,20 @@ export const authMiddleware = (req, res, next) => {
         next();
     } catch (err) {
         if (err instanceof jwt.TokenExpiredError) {
-            return res.status(401).json({ error: 'Token expirado', code: 'TOKEN_EXPIRED' });
+            return res.status(401).json({
+                error: 'Token expirado',
+                code: 'TOKEN_EXPIRED',
+                expiredAt: err.expiredAt,
+            });
+        }
+
+        if (err instanceof jwt.NotBeforeError) {
+            return res.status(403).json({ error: 'Token aún no es válido', code: 'TOKEN_NOT_ACTIVE' });
         }
 
         if (err instanceof jwt.JsonWebTokenError) {
-            return res.status(403).json({ error: 'Firma o algoritmo inválido', code: 'INVALID_TOKEN' });
+            // Cubre: algoritmo inválido, firma incorrecta, token malformado
+            return res.status(403).json({ error: 'Firma o algoritmo inválido', code: 'INVALID_SIGNATURE' });
         }
 
         return res.status(403).json({ error: 'Token inválido', code: 'INVALID_TOKEN' });
