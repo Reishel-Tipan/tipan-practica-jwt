@@ -2,31 +2,26 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/env.js';
 
 export class JwtService {
-    /**
-     * Firma un token JWT basándose en el algoritmo configurado.
-     * @param {Object} payload - Los datos del usuario a incluir en el token.
-     * @returns {string} El token JWT generado.
-     */
-    static signToken(payload) {
-        // TODO: Implementar lógica de firmado.
-        // 1. Verificar si config.ALGORITHM es 'RS256' o 'HS256'.
-        // 2. Si es 'RS256', usar config.PRIVATE_KEY.
-        // 3. Si es 'HS256', usar config.JWT_SECRET.
-        // 4. Establecer un tiempo de expiración (ej. 1h).
-        // 5. Retornar el token firmado usando jwt.sign().
+    static signToken(user) {
+        const now = Math.floor(Date.now() / 1000);
+        const payload = {
+            sub: user.id,
+            name: user.name,
+            exp: now + 60, // expira exactamente en 1 minuto
+        };
+
+        if (config.PRIVATE_KEY) {
+            return jwt.sign(payload, config.PRIVATE_KEY, { algorithm: 'RS256' });
+        }
+
+        return jwt.sign(payload, config.JWT_SECRET, { algorithm: 'HS256' });
     }
 
-    /**
-     * Verifica un token JWT basándose en el algoritmo configurado.
-     * @param {string} token - El token JWT a verificar.
-     * @returns {Object|null} El payload decodificado o null si es inválido.
-     */
     static verifyToken(token) {
-        // TODO: Implementar lógica de verificación.
-        // 1. Verificar si config.ALGORITHM es 'RS256' o 'HS256'.
-        // 2. Si es 'RS256', usar config.PUBLIC_KEY para verificar.
-        // 3. Si es 'HS256', usar config.JWT_SECRET para verificar.
-        // 4. Retornar el payload decodificado usando jwt.verify().
-        // 5. Manejar posibles errores (token expirado, firma inválida) y retornar null.
+        if (config.PUBLIC_KEY) {
+            return jwt.verify(token, config.PUBLIC_KEY, { algorithms: ['RS256'] });
+        }
+
+        return jwt.verify(token, config.JWT_SECRET, { algorithms: ['HS256'] });
     }
 }
