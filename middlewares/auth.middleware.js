@@ -5,7 +5,7 @@ export const authMiddleware = (req, res, next) => {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Token no proporcionado' });
+        return res.status(401).json({ error: 'Token no proporcionado', code: 'NO_TOKEN' });
     }
 
     const token = authHeader.split(' ')[1];
@@ -15,6 +15,7 @@ export const authMiddleware = (req, res, next) => {
         req.user = payload;
         next();
     } catch (err) {
+        // Errores lógicos: flujos de seguridad esperados, no se reportan a Sentry
         if (err instanceof jwt.TokenExpiredError) {
             return res.status(401).json({
                 error: 'Token expirado',
@@ -28,7 +29,6 @@ export const authMiddleware = (req, res, next) => {
         }
 
         if (err instanceof jwt.JsonWebTokenError) {
-            // Cubre: algoritmo inválido, firma incorrecta, token malformado
             return res.status(403).json({ error: 'Firma o algoritmo inválido', code: 'INVALID_SIGNATURE' });
         }
 
