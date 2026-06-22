@@ -10,7 +10,7 @@ export class ResourceController {
         }
     }
 
-    // Captura explícita con tags y contexto extra
+    // Captura explícita con tags y contexto extra solo si ocurre un error real
     static getBetaPrivateData(req, res, next) {
         try {
             return res.status(200).json({
