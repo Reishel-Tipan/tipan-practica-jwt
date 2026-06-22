@@ -1,3 +1,6 @@
+import { config } from 'dotenv';
+config();
+
 import * as Sentry from '@sentry/node';
 
 Sentry.init({

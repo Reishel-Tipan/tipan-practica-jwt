@@ -1,4 +1,3 @@
-import './instrument.js';
 import 'dotenv/config';
 import * as Sentry from '@sentry/node';
 import express from 'express';
@@ -18,7 +17,7 @@ Sentry.setupExpressErrorHandler(app);
 
 // Manejador de errores global
 app.use((err, req, res, next) => {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ error: 'Error interno del servidor' });
 });
 
